@@ -1,5 +1,13 @@
 # Trabalho - Especialista Médico
 
+## Pontos a serem feitos
+- [x] Levantamento de Doenças
+- [x] Levantamento de Sintomas
+- [x] Levantamento de Regras
+- [ ] Confiança de cada sintoma nas regras
+- [ ] Criação do sistema
+- [ ] Validação do sistema
+
 ## Descrição do problema
 
 - Desenvolver um sistema especialista capaz de fornecer diagnósticos iniciais de doenças comuns, levando em consideração os principais sintomas entre eles.
