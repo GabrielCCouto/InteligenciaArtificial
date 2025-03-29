@@ -42,7 +42,7 @@ class Febre:
         self.contato = None    # "Sim" ou "Não"
 
     def coletar_dados(self, perguntar_com_opcoes):
-        # Como o paciente já selecionou "Febre", definimos automaticamente que ele notou febre.
+        # Como o paciente já selecionou "Febre", definimos automaticamente que ele apresentou febre.
         self.febre = "Sim"
         
         opcoes_sim_nao = ["Sim", "Não"]
@@ -127,7 +127,7 @@ class Enfermeira:
             # Remove o sintoma já coletado para não ser perguntado novamente
             self.opcoes_sintomas.remove(sintoma)
 
-            # Se ainda houver opções, perguntar se sente mais alguma coisa
+            # Se ainda houver opções, perguntar se sente mais algum sintoma
             if self.opcoes_sintomas:
                 opcoes_sim_nao = ["Sim", "Não"]
                 resposta = self.perguntar_com_opcoes(
@@ -166,8 +166,113 @@ class Enfermeira:
 
 class Medico:
     def __init__(self, enfermeira):
-        # O médico recebe o objeto enfermeira com os dados da triagem
+        # O médico recebe o objeto da enfermeira com os dados da triagem
         self.enfermeira = enfermeira
+        # Pontuações iniciais para as 5 doenças e detalhes dos sintomas que as sustentam
+        self.scores = {
+            "Gripe (Influenza)": 0,
+            "Sinusite": 0,
+            "Resfriado Comum": 0,
+            "Bronquite Aguda": 0,
+            "Faringite": 0
+        }
+        self.scores_details = {doenca: [] for doenca in self.scores}
+        # Lista de perguntas adicionais (texto e as doenças que ela impacta)
+        self.additional_questions = [
+            ("O paciente apresenta fadiga intensa?", ["Gripe (Influenza)"]),
+            ("O paciente apresenta dor de garganta?", ["Gripe (Influenza)", "Faringite"]),
+            ("O paciente apresenta congestão nasal?", ["Gripe (Influenza)"]),
+            ("O paciente apresenta congestão nasal persistente?", ["Sinusite"]),
+            ("O paciente apresenta secreção nasal espessa e amarelada ou esverdeada?", ["Sinusite"]),
+            ("O paciente apresenta redução ou perda do olfato?", ["Sinusite"]),
+            ("O paciente apresenta nariz escorrendo ou entupido?", ["Resfriado Comum"]),
+            ("O paciente apresenta espirros?", ["Resfriado Comum"]),
+            ("O paciente apresenta dor de garganta leve?", ["Resfriado Comum"]),
+            ("O paciente apresenta tosse moderada?", ["Resfriado Comum"]),
+            ("O paciente apresenta dor de cabeça leve?", ["Resfriado Comum"]),
+            ("O paciente apresenta fadiga leve?", ["Resfriado Comum"]),
+            ("O paciente sente aperto no peito?", ["Bronquite Aguda"]),
+            ("O paciente apresenta desconforto ao respirar profundamente?", ["Bronquite Aguda"]),
+            ("O paciente apresenta dificuldade para engolir?", ["Faringite"]),
+            ("O paciente apresenta vermelhidão na garganta?", ["Faringite"]),
+            ("O paciente apresenta inchaço dos linfonodos no pescoço?", ["Faringite"])
+        ]
+
+    def perguntar_com_opcoes(self, pergunta, opcoes):
+        print(pergunta)
+        for i, opcao in enumerate(opcoes, start=1):
+            print(f"{i} - {opcao}")
+        while True:
+            escolha = input(f"Escolha a opção (1-{len(opcoes)}): ").strip()
+            if escolha.isdigit() and 1 <= int(escolha) <= len(opcoes):
+                return int(escolha)
+            else:
+                print("Opção inválida. Tente novamente.")
+
+    def obter_resposta_adicional(self, pergunta):
+        opcoes = ["Sim", "Não"]
+        print(pergunta)
+        for i, opcao in enumerate(opcoes, start=1):
+            print(f"{i} - {opcao}")
+        while True:
+            resposta = input("Escolha a opção (1-2): ").strip()
+            if resposta.isdigit() and int(resposta) in [1, 2]:
+                return opcoes[int(resposta) - 1]
+            else:
+                print("Opção inválida. Tente novamente.")
+
+    def calcular_scores_iniciais(self):
+        # Gripe (Influenza)
+        if "Febre" in self.enfermeira.dados_sintomas:
+            if self.enfermeira.febre.febre == "Sim":
+                self.scores["Gripe (Influenza)"] += 1
+                self.scores_details["Gripe (Influenza)"].append("febre")
+            if self.enfermeira.febre.calafrios == "Sim":
+                self.scores["Gripe (Influenza)"] += 1
+                self.scores_details["Gripe (Influenza)"].append("calafrios")
+        if "Dor" in self.enfermeira.dados_sintomas:
+            dor = self.enfermeira.dados_sintomas["Dor"]
+            if dor.musculares == "Sim":
+                self.scores["Gripe (Influenza)"] += 1
+                self.scores_details["Gripe (Influenza)"].append("dores musculares")
+            if dor.regiao == "Cabeça":
+                self.scores["Gripe (Influenza)"] += 1
+                self.scores_details["Gripe (Influenza)"].append("dor de cabeça")
+        if "Tosse" in self.enfermeira.dados_sintomas and self.enfermeira.tosse.presenca == "Sim":
+            self.scores["Gripe (Influenza)"] += 1
+            self.scores_details["Gripe (Influenza)"].append("tosse")
+
+        # Sinusite
+        if "Dor" in self.enfermeira.dados_sintomas:
+            dor = self.enfermeira.dados_sintomas["Dor"]
+            if dor.facial == "Sim":
+                self.scores["Sinusite"] += 1
+                self.scores_details["Sinusite"].append("dor facial")
+            if dor.regiao == "Cabeça":
+                self.scores["Sinusite"] += 1
+                self.scores_details["Sinusite"].append("dor de cabeça")
+        if "Febre" in self.enfermeira.dados_sintomas:
+            if self.enfermeira.febre.febre == "Sim":
+                self.scores["Sinusite"] += 1
+                self.scores_details["Sinusite"].append("febre")
+
+        # Resfriado Comum
+        if "Tosse" in self.enfermeira.dados_sintomas and self.enfermeira.tosse.presenca == "Sim":
+            self.scores["Resfriado Comum"] += 1
+            self.scores_details["Resfriado Comum"].append("tosse")
+
+        # Bronquite Aguda
+        if "Tosse" in self.enfermeira.dados_sintomas and self.enfermeira.tosse.tipo == "Com produção de muco":
+            self.scores["Bronquite Aguda"] += 1
+            self.scores_details["Bronquite Aguda"].append("tosse com produção de muco")
+
+        # Faringite
+        # Nenhuma informação prévia específica foi coletada na triagem da enfermeira para Faringite.
+
+    def diagnosticar(self):
+        # Retorna os diagnósticos possíveis, ou seja, os que têm score >= 3.
+        return {doenca: (self.scores[doenca], self.scores_details[doenca])
+                for doenca in self.scores if self.scores[doenca] >= 3}
 
     def analisar_triagem(self):
         print("\n--- Análise da Triagem pelo Médico ---")
@@ -175,14 +280,43 @@ class Medico:
             print("O paciente está bem, sem sintomas a relatar.")
             return
 
-        # O médico informa os sintomas coletados
-        for sintoma, dados in self.enfermeira.dados_sintomas.items():
-            if sintoma == "Dor":
-                print("O paciente apresenta dor.")
-            elif sintoma == "Febre":
-                print("O paciente apresenta febre.")
-            elif sintoma == "Tosse":
-                print("O paciente apresenta tosse.")
+        # Exibe os sintomas coletados
+        print("O paciente apresenta os seguintes sintomas coletados pela enfermeira:")
+        for sintoma in self.enfermeira.dados_sintomas.keys():
+            print(f"- {sintoma}")
+
+        # Calcula as pontuações iniciais com base nos dados da enfermeira
+        self.calcular_scores_iniciais()
+        print("\nSintomas identificados e contribuições iniciais:")
+        for doenca, score in self.scores.items():
+            detalhes = ", ".join(self.scores_details[doenca])
+            print(f"{doenca}: {score} - {detalhes}")
+
+        # Verifica se alguma doença já possui score >= 3
+        possiveis = self.diagnosticar()
+        # Se não houver diagnóstico, o médico começa a perguntar sintomas adicionais
+        idx = 0
+        while not possiveis and idx < len(self.additional_questions):
+            pergunta, doencas_relacionadas = self.additional_questions[idx]
+            resposta = self.obter_resposta_adicional(pergunta)
+            if resposta == "Sim":
+                for doenca in doencas_relacionadas:
+                    self.scores[doenca] += 1
+                    self.scores_details[doenca].append(pergunta)
+            print("\nAtualização dos sintomas:")
+            for doenca, score in self.scores.items():
+                detalhes = ", ".join(self.scores_details[doenca])
+                print(f"{doenca}: {score} - {detalhes}")
+            possiveis = self.diagnosticar()
+            idx += 1
+
+        if possiveis:
+            print("\nDiagnóstico: O paciente pode estar com:")
+            for doenca, (score, sintomas) in possiveis.items():
+                sintomas_str = ", ".join(sintomas)
+                print(f"- {doenca}: {score} pontos ({sintomas_str})")
+        else:
+            print("\nNão foi possível diagnosticar com as informações disponíveis. São necessárias mais informações.")
 
 
 # Exemplo de uso:
@@ -190,7 +324,6 @@ if __name__ == "__main__":
     enfermeira = Enfermeira()
     enfermeira.iniciar_triagem()
 
-    # Se a triagem foi realizada (ou seja, o paciente não estava "Bem")
     if enfermeira.estado != "Bem":
         medico = Medico(enfermeira)
         medico.analisar_triagem()
