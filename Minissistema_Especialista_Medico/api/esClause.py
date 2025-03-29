@@ -50,6 +50,16 @@ class Clause:
                     self.truth = lhs_numeric_value != rhs_numeric_value
                 else:
                     self.truth = self.lhs.value.lower() != self.rhs.lower()
+            elif self.cond.index == 5:
+                if both_numeric:
+                    self.truth = lhs_numeric_value >= rhs_numeric_value
+                else:
+                    self.truth = self.lhs.value.lower() >= self.rhs.lower()
+            elif self.cond.index == 6:
+                if both_numeric:
+                    self.truth = lhs_numeric_value <= rhs_numeric_value
+                else:
+                    self.truth = self.lhs.value.lower() <= self.rhs.lower()
             return self.truth
 
     def set_consequent(self):

@@ -9,6 +9,10 @@ class Condition:
             self.index = 3
         elif symbol == "!=":
             self.index = 4
+        elif symbol == ">=":
+            self.index = 5
+        elif symbol == "<=":
+            self.index = 6
         else:
             self.index = -1
 

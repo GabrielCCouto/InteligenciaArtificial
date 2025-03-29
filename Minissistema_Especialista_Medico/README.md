@@ -6,6 +6,7 @@
 - [x] Levantamento de Sintomas
 - [x] Levantamento de Regras
 - [x] Confiança de cada sintoma nas regras
+- [ ] Implementar lógica de confiança (CNF)
 - [ ] Criação do sistema
 - [ ] Validação do sistema
 
@@ -123,7 +124,7 @@ REGRA 04: SE espirro = sim OU nariz_entupido = sim
 REGRA 05: SE tosse = produtiva
           ENTÃO catarro = sim
 
-REGRA 06: SE tosse = seca OU tosse = produtiva OU dificuldade_engolir = sim
+REGRA 06: SE tosse <> nao OU dificuldade_engolir = sim
           ENTÃO dor_garganta = sim
           
 REGRA 07: SE coriza = sim E dor_olhos = sim
