@@ -1,5 +1,5 @@
 # main.py
-from enfermeira import Enfermeira
+from Enfermeira import Enfermeira
 
 def main():
     enfermeira = Enfermeira()

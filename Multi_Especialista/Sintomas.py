@@ -37,6 +37,7 @@ class Dor:
                     break
                 else:
                     print("Entrada inválida. Digite um número entre 1 e 10.")
+
         elif local_selecionado == "Cabeça":
             self.dor_na_cabeca = True
             while True:
@@ -52,6 +53,7 @@ class Dor:
                 self.dor_subita = True
             else:
                 self.dor_gradual = True
+
         elif local_selecionado == "Ouvido":
             self.dor_no_ouvido = True
             while True:
@@ -66,6 +68,7 @@ class Dor:
             self.perda_auditiva = (opcoes_sim_nao[escolha_perda - 1] == "Sim")
             escolha_escorrendo = perguntar_com_opcoes("Seu ouvido está escorrendo?", opcoes_sim_nao)
             self.ouvido_escorrendo = (opcoes_sim_nao[escolha_escorrendo - 1] == "Sim")
+
         elif local_selecionado == "Garganta":
             self.dor_na_garganta = True
             while True:
@@ -78,6 +81,7 @@ class Dor:
             opcoes_sim_nao = ["Sim", "Não"]
             escolha_engolir = perguntar_com_opcoes("Você está com dificuldade para engolir?", opcoes_sim_nao)
             self.dificuldade_engolir = (opcoes_sim_nao[escolha_engolir - 1] == "Sim")
+
         print(f"\nDados de dor coletados para {local_selecionado}.")
 
 
@@ -112,6 +116,7 @@ class MalEstar:
         self.dor_abdominal = False
         self.diarreia = False
         self.tontura = False
+        self.tremores = False
         self.movimento_involuntario = False
 
     def coletar_dados(self, perguntar_com_opcoes):
@@ -126,6 +131,8 @@ class MalEstar:
         self.diarreia = (opcoes_sim_nao[escolha - 1] == "Sim")
         escolha = perguntar_com_opcoes("Sentiu tontura?", opcoes_sim_nao)
         self.tontura = (opcoes_sim_nao[escolha - 1] == "Sim")
-        escolha = perguntar_com_opcoes("Está sentindo tremores ou movimentos involuntários?", opcoes_sim_nao)
+        escolha = perguntar_com_opcoes("Você está sentindo tremores?", opcoes_sim_nao)
+        self.tremores = (opcoes_sim_nao[escolha - 1] == "Sim")
+        escolha = perguntar_com_opcoes("Está tendo movimentos involuntários?", opcoes_sim_nao)
         self.movimento_involuntario = (opcoes_sim_nao[escolha - 1] == "Sim")
         print("\nDados de mal estar coletados.")

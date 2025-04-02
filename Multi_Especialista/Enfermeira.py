@@ -1,5 +1,5 @@
 # enfermeira.py
-from sintomas import Dor, Tosse, MalEstar
+from Sintomas import Dor, Tosse, MalEstar
 
 class Enfermeira:
     def __init__(self):
@@ -8,7 +8,7 @@ class Enfermeira:
         self.exame = None             # "Sim" ou "Não" (apenas para retorno)
         # Trabalhamos com os sintomas: Dor, Tosse e Mal Estar
         self.opcoes_sintomas = ["Dor", "Tosse", "Mal Estar"]
-        # Armazena múltiplas ocorrências de cada sintoma em listas
+        # Permite múltiplas ocorrências para cada sintoma
         self.dados_sintomas = {"Dor": [], "Tosse": [], "Mal Estar": []}
 
     def perguntar_com_opcoes(self, pergunta, opcoes):
@@ -47,7 +47,6 @@ class Enfermeira:
 
         continuar = True
         while continuar:
-            # Pergunta: "Qual seu sintoma?"
             escolha_sintoma = self.perguntar_com_opcoes("\nQual seu sintoma?", self.opcoes_sintomas)
             sintoma_selecionado = self.opcoes_sintomas[escolha_sintoma - 1]
             if sintoma_selecionado == "Dor":
@@ -62,13 +61,40 @@ class Enfermeira:
                 novo_malestar = MalEstar()
                 novo_malestar.coletar_dados(self.perguntar_com_opcoes)
                 self.dados_sintomas["Mal Estar"].append(novo_malestar)
-
+            
             opcoes_sim_nao = ["Sim", "Não"]
             resposta = self.perguntar_com_opcoes("\nVocê tem mais algum sintoma?", opcoes_sim_nao)
             if opcoes_sim_nao[resposta - 1] == "Não":
                 continuar = False
 
         self.exibir_resumo()
+        # Verifica se o paciente deve ser encaminhado ao Neurologista
+        self.encaminhar_neurologista()
+
+    def encaminhar_neurologista(self):
+        # Os sintomas neurológicos que o Neurologista avalia:
+        # - Dor de cabeça (dor_na_cabeca em Dor)
+        # - Tontura, Tremores e Movimentos involuntários (em Mal Estar)
+        count = 0
+        # Verifica "Dor": dor de cabeça
+        if "Dor" in self.dados_sintomas:
+            for dor in self.dados_sintomas["Dor"]:
+                if dor.dor_na_cabeca:
+                    count += 1
+        # Verifica "Mal Estar": tontura, tremores, movimentos involuntários
+        if "Mal Estar" in self.dados_sintomas:
+            for mal in self.dados_sintomas["Mal Estar"]:
+                if mal.tontura:
+                    count += 1
+                if mal.tremores:
+                    count += 1
+                if mal.movimento_involuntario:
+                    count += 1
+
+        if count >= 3:
+            print("\nEncaminhar o paciente para o Neurologista.")
+        else:
+            print("\nO paciente não apresenta sinais suficientes para encaminhamento ao Neurologista.")
 
     def exibir_resumo(self):
         print("\n--- Resumo da Triagem ---")
@@ -96,7 +122,6 @@ class Enfermeira:
                         print(f"    Dor na garganta: Intensidade {dados.intensidade_dor_na_garganta}")
                         if dados.dificuldade_engolir:
                             print(f"      Dificuldade para engolir: {dados.dificuldade_engolir}")
-
                 elif sintoma == "Tosse":
                     if dados.tosse_seca:
                         print("    Tosse seca")
@@ -106,7 +131,6 @@ class Enfermeira:
                         print("    Dificuldade respiratória")
                     if dados.gripe_resfriado:
                         print("    Teve gripe ou resfriado recentemente")
-
                 elif sintoma == "Mal Estar":
                     if dados.enjoo:
                         print("    Enjoo")
@@ -118,5 +142,7 @@ class Enfermeira:
                         print("    Diarreia")
                     if dados.tontura:
                         print("    Tontura")
+                    if dados.tremores:
+                        print("    Tremores")
                     if dados.movimento_involuntario:
                         print("    Movimentos involuntários")
