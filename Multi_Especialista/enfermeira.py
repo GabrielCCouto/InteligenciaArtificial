@@ -1,16 +1,15 @@
 # enfermeira.py
-from sintomas import Dor, Febre, Tosse
+from sintomas import Dor, Tosse, MalEstar
 
 class Enfermeira:
     def __init__(self):
         self.estado = None            # "Bem", "Razoável", "Mal"
         self.consulta = None          # "Primeira consulta" ou "Retorno"
         self.exame = None             # "Sim" ou "Não" (apenas para retorno)
-        self.opcoes_sintomas = ["Dor", "Febre", "Tosse"]
-        self.dados_sintomas = {}
-        self.dor = Dor()
-        self.febre = Febre()
-        self.tosse = Tosse()
+        # Trabalhamos com os sintomas: Dor, Tosse e Mal Estar
+        self.opcoes_sintomas = ["Dor", "Tosse", "Mal Estar"]
+        # Armazena múltiplas ocorrências de cada sintoma em listas
+        self.dados_sintomas = {"Dor": [], "Tosse": [], "Mal Estar": []}
 
     def perguntar_com_opcoes(self, pergunta, opcoes):
         print(pergunta)
@@ -35,45 +34,39 @@ class Enfermeira:
         escolha = self.perguntar_com_opcoes("Como você está se sentindo hoje?", estado_opcoes)
         self.estado = estado_opcoes[escolha - 1]
 
-        # Se o paciente estiver bem:
         if self.estado == "Bem":
             if self.consulta == "Primeira consulta":
                 print("\nO paciente está bem e, por ser a primeira consulta, não há o que investigar.")
                 return
             else:
-                # Se for retorno, pergunta se já realizou algum exame.
                 opcoes_sim_nao = ["Sim", "Não"]
                 resposta = self.perguntar_com_opcoes("Você fez algum exame?", opcoes_sim_nao)
                 self.exame = opcoes_sim_nao[resposta - 1]
                 print(f"\nO paciente está bem. Encaminhando para o médico (Exame realizado: {self.exame}).")
                 return
 
-        # Se o paciente não está bem, coleta os sintomas
-        while self.opcoes_sintomas:
-            escolha = self.perguntar_com_opcoes(
-                "\nQual é o principal sintoma que o trouxe aqui?",
-                self.opcoes_sintomas
-            )
-            sintoma = self.opcoes_sintomas[escolha - 1]
-            if sintoma == "Dor":
-                self.dor.coletar_dados(self.perguntar_com_opcoes)
-                self.dados_sintomas["Dor"] = self.dor
-            elif sintoma == "Febre":
-                self.febre.coletar_dados(self.perguntar_com_opcoes)
-                self.dados_sintomas["Febre"] = self.febre
-            elif sintoma == "Tosse":
-                self.tosse.coletar_dados(self.perguntar_com_opcoes)
-                self.dados_sintomas["Tosse"] = self.tosse
+        continuar = True
+        while continuar:
+            # Pergunta: "Qual seu sintoma?"
+            escolha_sintoma = self.perguntar_com_opcoes("\nQual seu sintoma?", self.opcoes_sintomas)
+            sintoma_selecionado = self.opcoes_sintomas[escolha_sintoma - 1]
+            if sintoma_selecionado == "Dor":
+                nova_dor = Dor()
+                nova_dor.coletar_dados(self.perguntar_com_opcoes)
+                self.dados_sintomas["Dor"].append(nova_dor)
+            elif sintoma_selecionado == "Tosse":
+                nova_tosse = Tosse()
+                nova_tosse.coletar_dados(self.perguntar_com_opcoes)
+                self.dados_sintomas["Tosse"].append(nova_tosse)
+            elif sintoma_selecionado == "Mal Estar":
+                novo_malestar = MalEstar()
+                novo_malestar.coletar_dados(self.perguntar_com_opcoes)
+                self.dados_sintomas["Mal Estar"].append(novo_malestar)
 
-            # Remove o sintoma já coletado para evitar repetições
-            self.opcoes_sintomas.remove(sintoma)
-            if self.opcoes_sintomas:
-                opcoes_sim_nao = ["Sim", "Não"]
-                resposta = self.perguntar_com_opcoes("\nVocê sente mais algum sintoma?", opcoes_sim_nao)
-                if opcoes_sim_nao[resposta - 1] == "Não":
-                    break
-            else:
-                break
+            opcoes_sim_nao = ["Sim", "Não"]
+            resposta = self.perguntar_com_opcoes("\nVocê tem mais algum sintoma?", opcoes_sim_nao)
+            if opcoes_sim_nao[resposta - 1] == "Não":
+                continuar = False
 
         self.exibir_resumo()
 
@@ -83,20 +76,47 @@ class Enfermeira:
         print(f"Estado geral do paciente: {self.estado}")
         if self.consulta == "Retorno" and self.estado == "Bem":
             print(f"Exame realizado: {self.exame}")
-        for sintoma, dados in self.dados_sintomas.items():
+        for sintoma, lista in self.dados_sintomas.items():
             print(f"\nSintoma: {sintoma}")
-            if sintoma == "Dor":
-                print(f"  Região: {dados.regiao}")
-                print(f"  Intensidade: {dados.intensidade}")
-                print(f"  Início: {dados.inicio}")
-                print(f"  Irradiação: {dados.irradia}")
-                print(f"  Dor facial: {dados.facial}")
-                print(f"  Dores musculares: {dados.musculares}")
-            elif sintoma == "Febre":
-                print(f"  Febre/Aumento da temperatura: {dados.febre}")
-                print(f"  Calafrios/Suores intensos: {dados.calafrios}")
-                print(f"  Contato com doente: {dados.contato}")
-            elif sintoma == "Tosse":
-                print(f"  Tosse: {dados.presenca}")
-                print(f"  Tipo de tosse: {dados.tipo}")
-                print(f"  Falta de ar: {dados.falta_ar}")
+            for idx, dados in enumerate(lista, start=1):
+                print(f"  Entrada {idx}:")
+                if sintoma == "Dor":
+                    if dados.dor_no_peito:
+                        print(f"    Dor no peito: Intensidade {dados.intensidade_dor_no_peito}")
+                    if dados.dor_na_cabeca:
+                        print(f"    Dor na cabeça: Intensidade {dados.intensidade_dor_na_cabeca}")
+                        if dados.dor_subita or dados.dor_gradual:
+                            inicio = "Subita" if dados.dor_subita else "Gradual"
+                            print(f"      Início: {inicio}")
+                    if dados.dor_no_ouvido:
+                        print(f"    Dor no ouvido: Intensidade {dados.intensidade_dor_no_ouvido}")
+                        if dados.perda_auditiva or dados.ouvido_escorrendo:
+                            print(f"      Perda auditiva: {dados.perda_auditiva}, Ouvido escorrendo: {dados.ouvido_escorrendo}")
+                    if dados.dor_na_garganta:
+                        print(f"    Dor na garganta: Intensidade {dados.intensidade_dor_na_garganta}")
+                        if dados.dificuldade_engolir:
+                            print(f"      Dificuldade para engolir: {dados.dificuldade_engolir}")
+
+                elif sintoma == "Tosse":
+                    if dados.tosse_seca:
+                        print("    Tosse seca")
+                    if dados.tosse_com_muco:
+                        print("    Tosse com muco")
+                    if dados.dificuldade_respiratoria:
+                        print("    Dificuldade respiratória")
+                    if dados.gripe_resfriado:
+                        print("    Teve gripe ou resfriado recentemente")
+
+                elif sintoma == "Mal Estar":
+                    if dados.enjoo:
+                        print("    Enjoo")
+                    if dados.refluxo:
+                        print("    Refluxo")
+                    if dados.dor_abdominal:
+                        print("    Dor abdominal")
+                    if dados.diarreia:
+                        print("    Diarreia")
+                    if dados.tontura:
+                        print("    Tontura")
+                    if dados.movimento_involuntario:
+                        print("    Movimentos involuntários")
