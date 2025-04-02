@@ -30,16 +30,18 @@ class Enfermeira:
         escolha = self.perguntar_com_opcoes("É sua primeira consulta ou é retorno?", consulta_opcoes)
         self.consulta = consulta_opcoes[escolha - 1]
 
-        # Pergunta sobre o estado geral
+        # Pergunta sobre o estado geral do paciente
         estado_opcoes = ["Bem", "Razoável", "Mal"]
         escolha = self.perguntar_com_opcoes("Como você está se sentindo hoje?", estado_opcoes)
         self.estado = estado_opcoes[escolha - 1]
 
+        # Se o paciente estiver bem:
         if self.estado == "Bem":
             if self.consulta == "Primeira consulta":
                 print("\nO paciente está bem e, por ser a primeira consulta, não há o que investigar.")
                 return
             else:
+                # Se for retorno, pergunta se já realizou algum exame.
                 opcoes_sim_nao = ["Sim", "Não"]
                 resposta = self.perguntar_com_opcoes("Você fez algum exame?", opcoes_sim_nao)
                 self.exame = opcoes_sim_nao[resposta - 1]
@@ -63,6 +65,7 @@ class Enfermeira:
                 self.tosse.coletar_dados(self.perguntar_com_opcoes)
                 self.dados_sintomas["Tosse"] = self.tosse
 
+            # Remove o sintoma já coletado para evitar repetições
             self.opcoes_sintomas.remove(sintoma)
             if self.opcoes_sintomas:
                 opcoes_sim_nao = ["Sim", "Não"]
