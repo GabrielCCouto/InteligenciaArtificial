@@ -2,7 +2,7 @@
 
 class Pneumologista:
     """
-    Especialista Pneumologista que utiliza as informações coletadas pela enfermeira para
+    Especialista Pneumologista utiliza as informações coletadas pela enfermeira para
     diagnosticar:
       - Influenza: associada à presença de tosse e histórico de gripe/resfriado.
       - Asma: associada à dificuldade respiratória e dor no peito.
@@ -22,22 +22,17 @@ class Pneumologista:
         sintomas_asma = []
         exame_recomendado = None
 
-        # Processa os dados de Tosse para Influenza:
         if "Tosse" in self.enfermeira.dados_sintomas:
             for tosse in self.enfermeira.dados_sintomas["Tosse"]:
-                # Se o paciente teve gripe ou resfriado recentemente
                 if tosse.gripe_resfriado:
                     self.score_influenza += 1
                     sintomas_influenza.append("histórico de gripe/resfriado")
-                # Considera a presença de tosse em si
                 self.score_influenza += 1
                 sintomas_influenza.append("tosse")
-                # Se há dificuldade respiratória, atribui pontos para asma
                 if tosse.dificuldade_respiratoria:
                     self.score_asma += 1
                     sintomas_asma.append("dificuldade respiratória")
 
-        # Processa os dados de Dor para Asma:
         if "Dor" in self.enfermeira.dados_sintomas:
             for dor in self.enfermeira.dados_sintomas["Dor"]:
                 if dor.dor_no_peito:
@@ -46,17 +41,14 @@ class Pneumologista:
                     if 8 <= dor.intensidade_dor_no_peito <= 10:
                         exame_recomendado = "Raio-X do tórax"
 
-        # Calcula as porcentagens de chance para cada doença
         porcentagem_influenza = (self.score_influenza / self.max_influenza) * 100 if self.max_influenza else 0
         porcentagem_asma = (self.score_asma / self.max_asma) * 100 if self.max_asma else 0
 
-        # Define o diagnóstico com base na pontuação
         if self.score_influenza >= self.score_asma:
             diagnostico = f"Influenza ({porcentagem_influenza:.1f}% de chance)"
         else:
             diagnostico = f"Asma ({porcentagem_asma:.1f}% de chance)"
 
-        # Monta strings de sintomas para exibição (removendo duplicatas)
         sintomas_str_influenza = ", ".join(set(sintomas_influenza))
         sintomas_str_asma = ", ".join(set(sintomas_asma))
 

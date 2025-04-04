@@ -2,7 +2,7 @@
 
 class Otorrinolaringologista:
     """
-    Especialista Otorrinolaringologista que utiliza as informações coletadas pela enfermeira para
+    Especialista Otorrinolaringologista utiliza as informações coletadas pela enfermeira para
     diagnosticar:
       - Infecção no ouvido: associada à dor no ouvido e perda auditiva.
       - Faringite: associada à dor na garganta e dificuldade para engolir.
@@ -23,20 +23,16 @@ class Otorrinolaringologista:
         exame_ouvido = None
         exame_faringite = None
 
-        # Processa os dados de "Dor" para identificar sintomas específicos
         if "Dor" in self.enfermeira.dados_sintomas:
             for dor in self.enfermeira.dados_sintomas["Dor"]:
-                # Infecção no ouvido: dor no ouvido e perda auditiva
                 if dor.dor_no_ouvido:
                     self.score_infeccao_ouvido += 1
                     sintomas_ouvido.append("dor no ouvido")
                     if dor.perda_auditiva:
                         self.score_infeccao_ouvido += 1
                         sintomas_ouvido.append("perda auditiva")
-                    # Se a intensidade for alta, recomenda exame
                     if 8 <= dor.intensidade_dor_no_ouvido <= 10:
                         exame_ouvido = "Audiometria ou tomografia do ouvido"
-                # Faringite: dor na garganta e dificuldade para engolir
                 if dor.dor_na_garganta:
                     self.score_faringite += 1
                     sintomas_faringite.append("dor na garganta")
@@ -49,12 +45,10 @@ class Otorrinolaringologista:
         porcentagem_ouvido = (self.score_infeccao_ouvido / self.max_infeccao_ouvido) * 100 if self.max_infeccao_ouvido else 0
         porcentagem_faringite = (self.score_faringite / self.max_faringite) * 100 if self.max_faringite else 0
 
-        # Decide o diagnóstico (exibindo ambos os resultados)
         print("\nDiagnóstico Otorrinolaringológico:")
         print(f"Infecção no ouvido: {self.score_infeccao_ouvido} pontos - {porcentagem_ouvido:.1f}% de chance ({', '.join(set(sintomas_ouvido))})")
         print(f"Faringite: {self.score_faringite} pontos - {porcentagem_faringite:.1f}% de chance ({', '.join(set(sintomas_faringite))})")
 
-        # Mensagens adicionais para exames, se aplicável
         if exame_ouvido:
             print(f"\nComo a intensidade da dor no ouvido é alta, recomendo realizar o exame: {exame_ouvido}.")
         if exame_faringite:

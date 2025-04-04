@@ -6,11 +6,9 @@ class Enfermeira:
         self.estado = None            # "Bem", "Razoável", "Mal"
         self.consulta = None          # "Primeira consulta" ou "Retorno"
         self.exame = None             # "Sim" ou "Não" (apenas para retorno)
-        # Trabalhamos com os sintomas: Dor, Tosse e Mal Estar
+
         self.opcoes_sintomas = ["Dor", "Tosse", "Mal Estar"]
-        # Armazena múltiplas ocorrências para cada sintoma
         self.dados_sintomas = {"Dor": [], "Tosse": [], "Mal Estar": []}
-        # Lista para armazenar os especialistas para os quais encaminhar
         self.encaminhar_especialista = []
 
     def perguntar_com_opcoes(self, pergunta, opcoes):
@@ -26,12 +24,10 @@ class Enfermeira:
 
     def iniciar_triagem(self):
         print("Olá, sou a enfermeira. Vamos iniciar sua triagem!\n")
-        # Pergunta se é primeira consulta ou retorno
         consulta_opcoes = ["Primeira consulta", "Retorno"]
         escolha = self.perguntar_com_opcoes("É sua primeira consulta ou é retorno?", consulta_opcoes)
         self.consulta = consulta_opcoes[escolha - 1]
 
-        # Pergunta sobre o estado geral do paciente
         estado_opcoes = ["Bem", "Razoável", "Mal"]
         escolha = self.perguntar_com_opcoes("Como você está se sentindo hoje?", estado_opcoes)
         self.estado = estado_opcoes[escolha - 1]
@@ -74,7 +70,6 @@ class Enfermeira:
         self.encaminhar_especialistas()
 
     def encaminhar_especialistas(self):
-        # Encaminhamento para Neurologista:
         count_neuro = 0
         if "Dor" in self.dados_sintomas:
             for dor in self.dados_sintomas["Dor"]:
@@ -94,13 +89,12 @@ class Enfermeira:
         else:
             print("\nEncaminhamento automático: O paciente não necessita de encaminhamento para o Neurologista.")
 
-        # Encaminhamento para Pneumologista:
         count_pneumo = 0
         if "Tosse" in self.dados_sintomas:
             for tosse in self.dados_sintomas["Tosse"]:
                 if tosse.gripe_resfriado:
                     count_pneumo += 1
-                count_pneumo += 1  # presença de tosse
+                count_pneumo += 1
                 if tosse.dificuldade_respiratoria:
                     count_pneumo += 1
         if "Dor" in self.dados_sintomas:
@@ -113,7 +107,6 @@ class Enfermeira:
         else:
             print("\nEncaminhamento automático: O paciente não necessita de encaminhamento para o Pneumologista.")
 
-        # Encaminhamento para Gastroenterologista:
         count_gastro = 0
         if "Mal Estar" in self.dados_sintomas:
             for mal in self.dados_sintomas["Mal Estar"]:
@@ -131,14 +124,11 @@ class Enfermeira:
         else:
             print("\nEncaminhamento automático: O paciente não necessita de encaminhamento para o Gastroenterologista.")
 
-        # Encaminhamento para Otorrinolaringologista:
         count_otorrino = 0
         if "Dor" in self.dados_sintomas:
             for dor in self.dados_sintomas["Dor"]:
-                # Se houver dor no ouvido e perda auditiva, soma pontos
                 if dor.dor_no_ouvido and dor.perda_auditiva:
                     count_otorrino += 1
-                # Se houver dor na garganta e dificuldade para engolir, soma pontos
                 if dor.dor_na_garganta and dor.dificuldade_engolir:
                     count_otorrino += 1
         if count_otorrino >= 1:
