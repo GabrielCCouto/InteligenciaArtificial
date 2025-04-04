@@ -8,8 +8,10 @@ class Enfermeira:
         self.exame = None             # "Sim" ou "Não" (apenas para retorno)
         # Trabalhamos com os sintomas: Dor, Tosse e Mal Estar
         self.opcoes_sintomas = ["Dor", "Tosse", "Mal Estar"]
-        # Permite múltiplas ocorrências para cada sintoma
+        # Armazena múltiplas ocorrências para cada sintoma
         self.dados_sintomas = {"Dor": [], "Tosse": [], "Mal Estar": []}
+        # Lista para armazenar os especialistas para os quais encaminhar
+        self.encaminhar_especialista = []
 
     def perguntar_com_opcoes(self, pergunta, opcoes):
         print(pergunta)
@@ -45,6 +47,7 @@ class Enfermeira:
                 print(f"\nO paciente está bem. Encaminhando para o médico (Exame realizado: {self.exame}).")
                 return
 
+        # Se o paciente não está bem, coleta os sintomas
         continuar = True
         while continuar:
             escolha_sintoma = self.perguntar_com_opcoes("\nQual seu sintoma?", self.opcoes_sintomas)
@@ -68,33 +71,84 @@ class Enfermeira:
                 continuar = False
 
         self.exibir_resumo()
-        # Verifica se o paciente deve ser encaminhado ao Neurologista
-        self.encaminhar_neurologista()
+        self.encaminhar_especialistas()
 
-    def encaminhar_neurologista(self):
-        # Os sintomas neurológicos que o Neurologista avalia:
-        # - Dor de cabeça (dor_na_cabeca em Dor)
-        # - Tontura, Tremores e Movimentos involuntários (em Mal Estar)
-        count = 0
-        # Verifica "Dor": dor de cabeça
+    def encaminhar_especialistas(self):
+        # Encaminhamento para Neurologista:
+        count_neuro = 0
         if "Dor" in self.dados_sintomas:
             for dor in self.dados_sintomas["Dor"]:
                 if dor.dor_na_cabeca:
-                    count += 1
-        # Verifica "Mal Estar": tontura, tremores, movimentos involuntários
+                    count_neuro += 1
         if "Mal Estar" in self.dados_sintomas:
             for mal in self.dados_sintomas["Mal Estar"]:
                 if mal.tontura:
-                    count += 1
+                    count_neuro += 1
                 if mal.tremores:
-                    count += 1
+                    count_neuro += 1
                 if mal.movimento_involuntario:
-                    count += 1
-
-        if count >= 3:
-            print("\nEncaminhar o paciente para o Neurologista.")
+                    count_neuro += 1
+        if count_neuro >= 3:
+            print("\nEncaminhamento automático: O paciente será encaminhado para o Neurologista.")
+            self.encaminhar_especialista.append("Neurologista")
         else:
-            print("\nO paciente não apresenta sinais suficientes para encaminhamento ao Neurologista.")
+            print("\nEncaminhamento automático: O paciente não necessita de encaminhamento para o Neurologista.")
+
+        # Encaminhamento para Pneumologista:
+        count_pneumo = 0
+        if "Tosse" in self.dados_sintomas:
+            for tosse in self.dados_sintomas["Tosse"]:
+                if tosse.gripe_resfriado:
+                    count_pneumo += 1
+                count_pneumo += 1  # presença de tosse
+                if tosse.dificuldade_respiratoria:
+                    count_pneumo += 1
+        if "Dor" in self.dados_sintomas:
+            for dor in self.dados_sintomas["Dor"]:
+                if dor.dor_no_peito:
+                    count_pneumo += 1
+        if count_pneumo >= 2:
+            print("\nEncaminhamento automático: O paciente será encaminhado para o Pneumologista.")
+            self.encaminhar_especialista.append("Pneumologista")
+        else:
+            print("\nEncaminhamento automático: O paciente não necessita de encaminhamento para o Pneumologista.")
+
+        # Encaminhamento para Gastroenterologista:
+        count_gastro = 0
+        if "Mal Estar" in self.dados_sintomas:
+            for mal in self.dados_sintomas["Mal Estar"]:
+                if mal.refluxo:
+                    count_gastro += 1
+                if mal.enjoo:
+                    count_gastro += 1
+                if mal.dor_abdominal:
+                    count_gastro += 1
+                if mal.diarreia:
+                    count_gastro += 1
+        if count_gastro >= 2:
+            print("\nEncaminhamento automático: O paciente será encaminhado para o Gastroenterologista.")
+            self.encaminhar_especialista.append("Gastroenterologista")
+        else:
+            print("\nEncaminhamento automático: O paciente não necessita de encaminhamento para o Gastroenterologista.")
+
+        # Encaminhamento para Otorrinolaringologista:
+        count_otorrino = 0
+        if "Dor" in self.dados_sintomas:
+            for dor in self.dados_sintomas["Dor"]:
+                # Se houver dor no ouvido e perda auditiva, soma pontos
+                if dor.dor_no_ouvido and dor.perda_auditiva:
+                    count_otorrino += 1
+                # Se houver dor na garganta e dificuldade para engolir, soma pontos
+                if dor.dor_na_garganta and dor.dificuldade_engolir:
+                    count_otorrino += 1
+        if count_otorrino >= 1:
+            print("\nEncaminhamento automático: O paciente será encaminhado para o Otorrinolaringologista.")
+            self.encaminhar_especialista.append("Otorrinolaringologista")
+        else:
+            print("\nEncaminhamento automático: O paciente não necessita de encaminhamento para o Otorrinolaringologista.")
+
+        if not self.encaminhar_especialista:
+            print("\nEncaminhamento automático: Não há necessidade de encaminhamento para nenhum especialista.")
 
     def exibir_resumo(self):
         print("\n--- Resumo da Triagem ---")
@@ -146,3 +200,7 @@ class Enfermeira:
                         print("    Tremores")
                     if dados.movimento_involuntario:
                         print("    Movimentos involuntários")
+        if self.encaminhar_especialista:
+            print("\nEncaminhamento para especialistas:")
+            for esp in self.encaminhar_especialista:
+                print(f" - {esp}")
