@@ -1,51 +1,42 @@
 # Trabalho - Sistema A*
 
-Classe Node:
+📁 astar.py
+Função: Implementa o algoritmo A* propriamente dito.
 
-    Representa um nó (cidade) no grafo.
+Define a classe Node, que representa cada cidade durante a busca.
 
-    Atributos:
+A função a_star(graph, start, goal, heuristic_func) realiza a busca do melhor caminho do ponto de origem (start) ao destino (goal), utilizando a heurística (heuristic_func) e os pesos do grafo.
 
-        name: Nome da cidade.
+Usa uma open_list (lista de nós a explorar) e uma closed_list (nós já explorados), com heapq para garantir a ordenação pelo custo total f = custo real + heurística.
 
-        parent: Nó pai (cidade anterior no caminho).
+📁 graph.py
+Função: Define o grafo com as distâncias entre as cidades conectadas.
 
-        distance: Custo acumulado do ponto inicial até o nó atual.
+A função cidades() retorna um dicionário onde cada chave é uma cidade e os valores são dicionários com cidades vizinhas e distâncias (custos) diretas.
 
-        heuristic: Custo estimado (distância reta) até o nó de destino.
+📁 heuristics.py
+Função: Contém as funções heurísticas para cada cidade como destino.
 
-        f: Soma do custo distance e da heuristic, usada para ordenar os nós no algoritmo A*.
+Cada função (heuristic_destino_<cidade>) retorna uma estimativa da distância de qualquer cidade para uma cidade específica (usada como destino).
 
-Função romania_map():
+Essas heurísticas são pré-definidas com base em alguma estimativa (como distância em linha reta, por exemplo).
 
-    Define um grafo de cidades com as distâncias entre as cidades no Brasil (não é exatamente um mapa da Romênia).
+📁 main.py
+Função: É o ponto de entrada do programa.
 
-    Cada cidade é conectada a outras, com as respectivas distâncias.
+Gerencia a interação com o usuário:
 
-Função heuristic_cost():
+Pergunta a cidade de origem e destino.
 
-    Fornece uma heurística simples para cada cidade (distância em linha reta até o destino).
+Seleciona automaticamente a heurística correspondente ao destino.
 
-    O valor da heurística foi predefinido para cada cidade, com base em um valor de aproximação.
+Executa o algoritmo A* e exibe o caminho encontrado.
 
-Função a_star():
+Usa funções auxiliares de utils.py para limpar a tela e obter escolhas do usuário.
 
-    Implementa o algoritmo A* para encontrar o caminho mais curto de uma cidade de partida até o destino.
+📁 utils.py
+Função: Contém funções utilitárias auxiliares.
 
-    Usa duas listas:
+clear_terminal(): limpa o terminal para melhor apresentação.
 
-        open_list: Lista de nós a serem explorados.
-
-        closed_list: Lista de nós já explorados.
-
-    Para cada cidade, calcula o custo total f(n) que é a soma do custo real (g(n)) e o custo estimado (h(n)).
-
-    A função tenta explorar o caminho mais promissor (com o menor custo total).
-
-Execução e Exibição do Caminho:
-
-    O código usa a função a_star para encontrar o caminho entre as cidades 'Porto Alegre' e 'Rio de Janeiro'.
-
-    O terminal é limpo antes de exibir os resultados.
-
-    Se o caminho for encontrado, ele é impresso.
+get_user_choice(options, prompt): mostra opções numeradas ao usuário e valida a entrada, retornando a cidade selecionada.
