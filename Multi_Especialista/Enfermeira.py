@@ -10,7 +10,6 @@ class Enfermeira:
         self.exame = None             # "Sim" ou "Não" (apenas para retorno)
         self.medico_atendente = None  # Médico que atendeu, para pacientes de retorno
         self.opcoes_sintomas = ["Dor", "Tosse", "Mal Estar"]
-        # Armazena múltiplas ocorrências para cada sintoma
         self.dados_sintomas = {"Dor": [], "Tosse": [], "Mal Estar": []}
 
     def perguntar_com_opcoes(self, pergunta, opcoes):
@@ -26,39 +25,41 @@ class Enfermeira:
 
     def iniciar_triagem(self):
         print("\n=== Início da Triagem ===")
-        # Pergunta: Nome do paciente
         self.nome = input("Qual o seu nome? ").strip()
 
-        # Pergunta se é primeira consulta ou retorno
         consulta_opcoes = ["Primeira consulta", "Retorno"]
         escolha = self.perguntar_com_opcoes("É sua primeira consulta ou é retorno?", consulta_opcoes)
         self.consulta = consulta_opcoes[escolha - 1]
 
-        # Para pacientes de retorno, pergunta qual foi o médico que atendeu da última vez (opções)
         if self.consulta == "Retorno":
             medico_opcoes = ["Pneumologista", "Neurologista", "Gastroenterologista", "Otorrinolaringologista"]
             escolha_medico = self.perguntar_com_opcoes("Qual foi o médico que atendeu da última vez?", medico_opcoes)
             self.medico_atendente = medico_opcoes[escolha_medico - 1]
 
-        # Pergunta sobre o estado geral do paciente
+            opcoes_sim_nao = ["Sim", "Não"]
+            resposta = self.perguntar_com_opcoes("Você trouxe o exame solicitado?", opcoes_sim_nao)
+            self.exame = opcoes_sim_nao[resposta - 1]
+
+            if self.exame == "Não":
+                print("\nVocê precisa trazer o exame solicitado para dar continuidade no atendimento.")
+                self.salvar_ficha()
+                return
+            else:
+                self.nome_exame = input("Digite o nome do arquivo do exame (ex: exame_001.jpg): ").strip()
+
+            print(f"\nExame recebido. Encaminhando ficha para o médico {self.medico_atendente}.")
+            self.salvar_ficha()
+            return
+
         estado_opcoes = ["Bem", "Razoável", "Mal"]
         escolha = self.perguntar_com_opcoes("Como você está se sentindo hoje?", estado_opcoes)
         self.estado = estado_opcoes[escolha - 1]
 
         if self.estado == "Bem":
-            if self.consulta == "Primeira consulta":
-                print("\nO paciente está bem e, por ser a primeira consulta, não há o que investigar.")
-                self.salvar_ficha()
-                return
-            else:
-                opcoes_sim_nao = ["Sim", "Não"]
-                resposta = self.perguntar_com_opcoes("Você fez algum exame?", opcoes_sim_nao)
-                self.exame = opcoes_sim_nao[resposta - 1]
-                print(f"\nO paciente está bem. Encaminhando para o médico (Exame realizado: {self.exame}).")
-                self.salvar_ficha()
-                return
+            print("\nO paciente está bem e, por ser a primeira consulta, não há o que investigar.")
+            self.salvar_ficha()
+            return
 
-        # Se o paciente não está bem, coleta os sintomas
         continuar = True
         while continuar:
             escolha_sintoma = self.perguntar_com_opcoes("\nQual seu sintoma?", self.opcoes_sintomas)
@@ -75,14 +76,14 @@ class Enfermeira:
                 novo_malestar = MalEstar()
                 novo_malestar.coletar_dados(self.perguntar_com_opcoes)
                 self.dados_sintomas["Mal Estar"].append(novo_malestar)
-            
+
             opcoes_sim_nao = ["Sim", "Não"]
             resposta = self.perguntar_com_opcoes("\nVocê tem mais algum sintoma?", opcoes_sim_nao)
             if opcoes_sim_nao[resposta - 1] == "Não":
                 continuar = False
 
-        # self.exibir_resumo()
         self.salvar_ficha()
+
 
     def exibir_resumo(self):
         print("\n--- Resumo da Triagem ---")
@@ -139,7 +140,6 @@ class Enfermeira:
                         print("    Movimentos involuntários")
 
     def salvar_ficha(self):
-        # Monta o dicionário com os dados do paciente
         ficha = {
             "nome": self.nome,
             "consulta": self.consulta,
@@ -149,81 +149,87 @@ class Enfermeira:
             "sintomas": {}
         }
 
-        for sintoma, lista in self.dados_sintomas.items():
-            ficha["sintomas"][sintoma] = []
-            for dados in lista:
-                registro = {}
+        if hasattr(self, "nome_exame"):
+            ficha["nome_exame"] = self.nome_exame
 
+        for sintoma, lista in self.dados_sintomas.items():
+            sintomas_agrupados = {}
+
+            for dados in lista:
                 if sintoma == "Dor":
                     if dados.dor_no_peito:
-                        registro["dor_no_peito"] = True
-                        if dados.intensidade_dor_no_peito > 0:
-                            registro["intensidade_dor_no_peito"] = dados.intensidade_dor_no_peito
+                        sintomas_agrupados["dor_no_peito"] = True
+                        sintomas_agrupados["intensidade_dor_no_peito"] = max(
+                            sintomas_agrupados.get("intensidade_dor_no_peito", 0),
+                            dados.intensidade_dor_no_peito
+                        )
                     if dados.dor_na_cabeca:
-                        registro["dor_na_cabeca"] = True
-                        if dados.intensidade_dor_na_cabeca > 0:
-                            registro["intensidade_dor_na_cabeca"] = dados.intensidade_dor_na_cabeca
+                        sintomas_agrupados["dor_na_cabeca"] = True
+                        sintomas_agrupados["intensidade_dor_na_cabeca"] = max(
+                            sintomas_agrupados.get("intensidade_dor_na_cabeca", 0),
+                            dados.intensidade_dor_na_cabeca
+                        )
                         if dados.dor_subita:
-                            registro["dor_subita"] = True
+                            sintomas_agrupados["dor_subita"] = True
                         if dados.dor_gradual:
-                            registro["dor_gradual"] = True
+                            sintomas_agrupados["dor_gradual"] = True
                     if dados.dor_no_ouvido:
-                        registro["dor_no_ouvido"] = True
-                        if dados.intensidade_dor_no_ouvido > 0:
-                            registro["intensidade_dor_no_ouvido"] = dados.intensidade_dor_no_ouvido
+                        sintomas_agrupados["dor_no_ouvido"] = True
+                        sintomas_agrupados["intensidade_dor_no_ouvido"] = max(
+                            sintomas_agrupados.get("intensidade_dor_no_ouvido", 0),
+                            dados.intensidade_dor_no_ouvido
+                        )
                         if dados.perda_auditiva:
-                            registro["perda_auditiva"] = True
+                            sintomas_agrupados["perda_auditiva"] = True
                         if dados.ouvido_escorrendo:
-                            registro["ouvido_escorrendo"] = True
+                            sintomas_agrupados["ouvido_escorrendo"] = True
                     if dados.dor_na_garganta:
-                        registro["dor_na_garganta"] = True
-                        if dados.intensidade_dor_na_garganta > 0:
-                            registro["intensidade_dor_na_garganta"] = dados.intensidade_dor_na_garganta
+                        sintomas_agrupados["dor_na_garganta"] = True
+                        sintomas_agrupados["intensidade_dor_na_garganta"] = max(
+                            sintomas_agrupados.get("intensidade_dor_na_garganta", 0),
+                            dados.intensidade_dor_na_garganta
+                        )
                         if dados.dificuldade_engolir:
-                            registro["dificuldade_engolir"] = True
+                            sintomas_agrupados["dificuldade_engolir"] = True
 
                 elif sintoma == "Tosse":
                     if dados.tosse_seca:
-                        registro["tosse_seca"] = True
+                        sintomas_agrupados["tosse_seca"] = True
                     if dados.tosse_com_muco:
-                        registro["tosse_com_muco"] = True
+                        sintomas_agrupados["tosse_com_muco"] = True
                     if dados.dificuldade_respiratoria:
-                        registro["dificuldade_respiratoria"] = True
+                        sintomas_agrupados["dificuldade_respiratoria"] = True
                     if dados.gripe_resfriado:
-                        registro["gripe_resfriado"] = True
+                        sintomas_agrupados["gripe_resfriado"] = True
 
                 elif sintoma == "Mal Estar":
                     if dados.enjoo:
-                        registro["enjoo"] = True
+                        sintomas_agrupados["enjoo"] = True
                     if dados.refluxo:
-                        registro["refluxo"] = True
+                        sintomas_agrupados["refluxo"] = True
                     if dados.dor_abdominal:
-                        registro["dor_abdominal"] = True
+                        sintomas_agrupados["dor_abdominal"] = True
                     if dados.diarreia:
-                        registro["diarreia"] = True
+                        sintomas_agrupados["diarreia"] = True
                     if dados.tontura:
-                        registro["tontura"] = True
+                        sintomas_agrupados["tontura"] = True
                     if dados.tremores:
-                        registro["tremores"] = True
+                        sintomas_agrupados["tremores"] = True
                     if dados.movimento_involuntario:
-                        registro["movimento_involuntario"] = True
+                        sintomas_agrupados["movimento_involuntario"] = True
 
-                # Adiciona ao json apenas se houver algo preenchido
-                if registro:
-                    ficha["sintomas"][sintoma].append(registro)
+            if sintomas_agrupados:
+                ficha["sintomas"][sintoma] = [sintomas_agrupados]
 
-        # Define a pasta de destino
         pasta = "QuadroDeFichas"
         if not os.path.exists(pasta):
             os.makedirs(pasta)
 
-        # Gera o nome base do arquivo conforme a consulta e estado
         if self.consulta == "Retorno" and self.medico_atendente:
             base_filename = f"Retorno_{self.medico_atendente}_{self.nome}.json"
         else:
             base_filename = f"{self.estado}_{self.nome}.json"
 
-        # Garante que o arquivo não seja sobrescrito: se já existir, adiciona um sufixo numérico.
         arquivo = os.path.join(pasta, base_filename)
         name_without_ext, ext = os.path.splitext(base_filename)
         counter = 1
