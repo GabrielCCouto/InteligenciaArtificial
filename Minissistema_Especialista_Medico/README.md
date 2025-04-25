@@ -1,15 +1,5 @@
 # Trabalho - Especialista Médico
 
-## Pontos a serem feitos
-
-- [x] Levantamento de Doenças
-- [x] Levantamento de Sintomas
-- [x] Levantamento de Regras
-- [x] Confiança de cada sintoma nas regras
-- [ ] Implementar lógica de confiança (CNF)
-- [ ] Criação do sistema
-- [ ] Validação do sistema
-
 ## Descrição do problema
 
 - Desenvolver um sistema especialista capaz de fornecer diagnósticos iniciais de doenças comuns, levando em consideração
@@ -197,21 +187,4 @@ REGRA 21: SE perda_paladar = sim OU pressao_peito = sim
               
 REGRA 22: SE dor_articulacao = sim OU manchas_vermelhas = sim
           ENTÃO doenca = dengue (95%)
-
-REGRA 23: SE febre = não
-           E tosse = não 
-           E dor_cabeca = não 
-           E dor_corpo = não 
-           E dor_articulacao = não 
-           E dor_garganta = não 
-           E coriza = não 
-           E catarro = não 
-           E perda_olfato = não 
-           E dificuldade_respirar = não 
-           E dor_olhos = não
-           E pressao_peito = não 
-           E perda_paladar = não 
-           E manchas_vermelhas = não 
-           E pressao_face = não
-          ENTÃO doenca = indefinido
 ```
