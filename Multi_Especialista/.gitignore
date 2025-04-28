@@ -1,0 +1,4 @@
+Brain_Tumor_Organizado
+*.csv
+*__pycache__
+*.json
