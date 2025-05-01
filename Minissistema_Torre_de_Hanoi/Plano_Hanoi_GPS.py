@@ -1,5 +1,7 @@
 from gps import gps
 from itertools import product
+import pyvis
+from pyvis.network import Network
 
 def gerar_problema_hanoi(N):
     hastes = ["A", "B", "C"]
@@ -28,7 +30,7 @@ def gerar_problema_hanoi(N):
                 novo_cfg = ''.join(novo_cfg)
 
                 operadores.append({
-                    "action": f"mover disco {N-topo} \tde {origem} para {destino}",
+                    "action": f"mover disco {N-topo} de {origem} para {destino}",
                     "preconds": [f"config:{cfg}"],
                     "add":      [f"config:{novo_cfg}"],
                     "delete":   [f"config:{cfg}"]
@@ -49,6 +51,42 @@ def main():
         print("Problema resolvido!")
     else:
         print("Nenhum plano encontrado")
+
+    # Create a new network object
+    network = Network(height='900px', width='100%', directed=True)
+
+    #network.add_node(0, label=problema["init"][0])
+
+    finite_states = list(enumerate(set(map(lambda x: x["preconds"][0], problema["ops"]))))
+
+    solution_path = []
+    previous = problema["init"][0]
+    for i in map(lambda a: a[11:], plano):
+        step = list(filter(lambda a: a["preconds"][0] == previous and a["action"] == i, problema["ops"]))[0]
+        solution_path.append(step)
+        previous = step["add"][0]
+
+    solution_states = problema["init"] + list(map(lambda a: a["add"][0], solution_path))
+
+
+    for i, state in finite_states:
+        if state in solution_states:
+            network.add_node(i, label=f"{i} - {state}", shape='box', color='red')
+        else:
+            network.add_node(i, label=f"{i} - {state}", shape='box', color='gray')
+
+    for state in problema["ops"]:
+        precond = state["preconds"][0]
+        add = state["add"][0]
+        source = list(filter(lambda a: a[1] == precond , finite_states))[0]
+        destination = list(filter(lambda a: a[1] == add , finite_states))[0]
+
+        if state in solution_path:
+            network.add_edge(source[0], destination[0], color='red')  # , label=f"{state["action"]}")
+        else:
+            network.add_edge(source[0], destination[0], color='gray')#, label=f"{state["action"]}")
+
+    network.show('Graph.html', notebook=False)
 
 if __name__ == "__main__":
     main()
