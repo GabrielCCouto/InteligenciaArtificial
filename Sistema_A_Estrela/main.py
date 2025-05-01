@@ -1,6 +1,6 @@
-from graph import cidades
+from graph import cidades # Importa as cidades - graph
 from heuristics import *  # Importa todas as heurísticas
-from astar import a_star
+from astar import a_star # Importa lógica do A Estrela
 from utils import clear_terminal, get_user_choice
 
 # Dicionário para mapear destinos às suas respectivas funções heurísticas
